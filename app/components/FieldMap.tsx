@@ -1,0 +1,11 @@
+"use client";
+import {MapContainer,Marker,Polygon,Polyline,Popup,TileLayer,useMap} from "react-leaflet";
+import L from "leaflet";
+import {useEffect} from "react";
+import type {Detection} from "@/lib/types";
+const field:[[number,number],[number,number],[number,number],[number,number]]=[[51.2311,51.4192],[51.23135,51.42155],[51.22935,51.42175],[51.22915,51.4194]];
+const route:[[number,number],[number,number],[number,number],[number,number]]=[[51.2296,51.4199],[51.22995,51.4204],[51.23035,51.4201],[51.2301,51.4203]];
+const robot=L.divIcon({className:"",html:'<span class="robot-marker">A</span>',iconSize:[28,28],iconAnchor:[14,14]});
+const icon=(type:string)=>L.divIcon({className:"",html:`<span class="issue-marker" style="background:${type==='pest'?'#c84a3f':'#7757a8'}">${type==='pest'?'!':'W'}</span>`,iconSize:[22,22],iconAnchor:[11,11]});
+function Fit(){const map=useMap();useEffect(()=>{map.fitBounds(field,{padding:[28,28]});const id=setTimeout(()=>map.invalidateSize(),100);return()=>clearTimeout(id)},[map]);return null}
+export default function FieldMap({detections,onSelect,compact=false}:{detections:Detection[];onSelect?:(d:Detection)=>void;compact?:boolean}){return <div className={`map-shell overflow-hidden border border-[#d9e1d7] ${compact?'h-[260px]':'h-[590px]'}`}><MapContainer center={[51.2301,51.4203]} zoom={16} scrollWheelZoom className="z-0"><TileLayer attribution='&copy; участники OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/><Fit/><Polygon positions={field} pathOptions={{color:'#143d26',weight:2,fillColor:'#246b3b',fillOpacity:.09}}/><Polyline positions={route} pathOptions={{color:'#246b3b',weight:3,dashArray:'7 7'}}/><Marker position={[51.2301,51.4203]} icon={robot}><Popup>AgroX-01 · текущая GPS-позиция</Popup></Marker>{detections.map(d=>{const name=d.type==='pest'?'Саранча':'Широколистный сорняк';return <Marker key={d.id} position={[d.latitude,d.longitude]} icon={icon(d.type)} eventHandlers={{click:()=>onSelect?.(d)}}><Popup>{name}<br/>{(d.confidence*100).toFixed(0)}% · {d.sector}</Popup></Marker>})}<Polygon positions={[[51.22945,51.4211],[51.2297,51.4216],[51.22935,51.4217]]} pathOptions={{color:'#d89b3c',weight:1,fillColor:'#d89b3c',fillOpacity:.35}}/></MapContainer></div>}

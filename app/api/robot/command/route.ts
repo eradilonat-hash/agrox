@@ -1,0 +1,1 @@
+export async function POST(request:Request){try{const {robotId,command,mission}=await request.json();if(!robotId||!command)return Response.json({error:"robotId and command are required"},{status:400});return Response.json({accepted:true,robotId,command,mission,timestamp:new Date().toISOString()})}catch{return Response.json({error:"Invalid JSON"},{status:400})}}
